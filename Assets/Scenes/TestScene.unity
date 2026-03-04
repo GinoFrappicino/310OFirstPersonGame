@@ -839,6 +839,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a6d7171daf449c46a96b97294177a9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCam
+  cam: {fileID: 1286051348}
   SensX: 400
   SensY: 400
   orientation: {fileID: 1001847729}
@@ -1031,14 +1032,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3576f43f60397c488196612f76f9be7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovementAdvanced
+  cam: {fileID: 1286051348}
+  sprintFov: 100
   moveSpeed: 0
   walkSpeed: 7
-  sprintSpeed: 10
+  sprintSpeed: 15
   slideSpeed: 30
+  dashSpeed: 40
+  dashSpeedChangeFactor: 40
+  maxYSpeed: 0
   speedIncreaseMultiplier: 1.5
   slopeIncreaseMultiplier: 2.5
   groundDrag: 4
-  jumpForce: 15
+  jumpForce: 19
   jumpCooldown: 0.25
   airMultiplier: 0.4
   crouchSpeed: 3.5
@@ -1054,6 +1060,7 @@ MonoBehaviour:
   orientation: {fileID: 1001847729}
   state: 0
   sliding: 1
+  dashing: 0
 --- !u!114 &1432876026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1086,11 +1093,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Dashing
   orientation: {fileID: 1001847729}
   playerCam: {fileID: 1286051345}
-  dashForce: 20
-  dashUpwardForce: 0
-  dashDuration: 0.25
+  dashForce: 200
+  dashUpwardForce: 1.5
+  maxDashYSpeed: 15
+  dashDuration: 0.7
+  cam: {fileID: 1286051348}
+  dashFov: 100
+  useCameraForward: 0
+  allowAllDirections: 1
+  disableGravity: 1
+  resetVal: 1
   dashCd: 1.5
-  dashKey: 304
+  dashKey: 101
 --- !u!1 &1497220769
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,9 +1,15 @@
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using DG.Tweening;
 
 public class PlayerCam : MonoBehaviour
 {
+
+    [Header("CameraEffect")]
+    public PlayerCam cam;
+
+
     public float SensX;
     public float SensY;
 
@@ -16,6 +22,7 @@ public class PlayerCam : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        cam.DoFov(85f);
     }
 
     private void Update()
@@ -31,6 +38,11 @@ public class PlayerCam : MonoBehaviour
 
         transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
         orientation.rotation = Quaternion.Euler(0, yRotation, 0);
+    }
+
+    public void DoFov(float endValue)
+    {
+        GetComponent<Camera>().DOFieldOfView(endValue, 0.25f);
     }
 
 }

@@ -5,14 +5,17 @@ using TMPro;
 
 public class PlayerMovementAdvanced : MonoBehaviour
 {
+
+
     [Header("Movement")]
     public float moveSpeed;
     public float walkSpeed;
     public float sprintSpeed;
     public float slideSpeed;
 
-
     public float dashSpeed;
+    public float dashSpeedChangeFactor;
+    public float maxYSpeed;
 
     private float desiredMoveSpeed;
     private float lastDesiredMoveSpeed;
@@ -127,13 +130,15 @@ public class PlayerMovementAdvanced : MonoBehaviour
         }
     }
 
-
+    private MovementState lastState;
+    private bool keepMomentum;
     private void StateHandler()
     {
         if (dashing)
         {
             state = MovementState.dashing;
             moveSpeed = dashSpeed;
+            speedChangeFactor = dashSpeedChangeFactor;
         }
 
         // Mode - Sliding
@@ -173,6 +178,38 @@ public class PlayerMovementAdvanced : MonoBehaviour
         else
         {
             state = MovementState.air;
+
+            if(desiredMoveSpeed < sprintSpeed)
+            {
+                desiredMoveSpeed = walkSpeed;
+            }
+            else
+            {
+                desiredMoveSpeed = sprintSpeed;
+            }
+
+            bool desiredMoveSpeedhasChanged = desiredMoveSpeed != lastDesiredMoveSpeed;
+            if (lastState == MovementState.dashing)
+            {
+                keepMomentum = true;
+            }
+
+            if (desiredMoveSpeedhasChanged)
+            {
+                if (keepMomentum)
+                {
+                    StopAllCoroutines();
+                    StartCoroutine(SmoothlyLerpMoveSpeed());
+                }
+                else
+                {
+                    StopAllCoroutines();
+                    moveSpeed = desiredMoveSpeed;
+                }
+            }
+
+            lastDesiredMoveSpeed = desiredMoveSpeed;
+            lastState = state;
         }
 
         if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 4f && moveSpeed != 0)
@@ -188,6 +225,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
         lastDesiredMoveSpeed = desiredMoveSpeed;
     }
 
+    private float speedChangeFactor;
     private IEnumerator SmoothlyLerpMoveSpeed()
     {
         // smoothly lerp movementSpeed to desired value
@@ -195,9 +233,12 @@ public class PlayerMovementAdvanced : MonoBehaviour
         float difference = Mathf.Abs(desiredMoveSpeed - moveSpeed);
         float startValue = moveSpeed;
 
+        float boostFactor = speedChangeFactor;
+
         while (time < difference)
         {
             moveSpeed = Mathf.Lerp(startValue, desiredMoveSpeed, time / difference);
+            time += Time.deltaTime * boostFactor;
 
             if (OnSlope())
             {
@@ -217,6 +258,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
     private void MovePlayer()
     {
+        if (state == MovementState.dashing) return;
         // calculate movement direction
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
 
@@ -262,7 +304,10 @@ public class PlayerMovementAdvanced : MonoBehaviour
                 rb.linearVelocity = new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
             }
         }
+        if (maxYSpeed != 0 && rb.linearVelocity.y > maxYSpeed)
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y, rb.linearVelocity.z);
     }
+
     private void Jump()
     {
         exitingSlope = true;
@@ -294,4 +339,5 @@ public class PlayerMovementAdvanced : MonoBehaviour
     {
         return Vector3.ProjectOnPlane(direction, slopeHit.normal).normalized;
     }
+
 }
